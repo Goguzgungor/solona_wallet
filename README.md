@@ -31,3 +31,35 @@ Solonayla iletişme geçmek için @solona/web3.js paketini kullanacağız. Bu pa
 ```
 npm i @solana/web3.js
 ```
+Yazacağımız apileri denemek için swagger kullanacağız. Swagger'ı kurmak için aşağıdaki komutu çalıştırabilirsiniz:
+```
+npm install --save @nestjs/swagger
+```
+Swagger'ı yükledikten sonra kullanmak için main.ts dosyasında birkaç değişiklik yapmamız gerekiyor. main.ts dosyasını aşağıdaki gibi değiştirebilirsiniz:
+```
+import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
+
+  await app.listen(3000);
+}
+bootstrap();
+```
+Bu işlemlerden sonra projemizi çalıştırabiliriz. Önce genel paketleri yüklemesini sağlayıp sonra projemizi çalıştıralım:
+```
+npm install
+npm run start:dev
+```
+Bu noktada artık dosya dizininiz aşağıdaki gibi görünmelidir:
