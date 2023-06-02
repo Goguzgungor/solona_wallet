@@ -7,6 +7,7 @@ Solana Cookbook, Solana platformuna yönelik kapsamlı bir kaynak ve rehber kole
 Bu proje için TypeScript'i seçmemizin nedeni, statik tiplerin gücünü kullanarak daha güvenli ve hatasız bir geliştirme süreci sağlamaktır. Ayrıca, Nest.js kullanarak güçlü bir TypeScript tabanlı bir framework ile projemizi hızlı ve yapılandırılabilir bir şekilde geliştirebileceğiz. Nest.js, modüler bir yapı sunarak, kodun daha temiz ve bakımı kolay olmasını sağlar.
 
 Hazırsanız, Solana Cookbook referans alınarak, TypeScript ve Nest.js ile Solana için bir Wallet Backend'i oluşturmanın heyecan verici yolculuğuna başlayalım!
+## Projenin Kurulumu
 
 
 Öncelikle kullanacağımız teknolojileri kurmamız gerekiyor. Bu yazıda, Node.js 14.17.0 LTS sürümünü kullanacağız. Node.js'i indirmek için, https://nodejs.org/en/download/ adresini ziyaret edebilirsiniz. Node.js'i kurduktan sonra, Nest.js'i kurmak için aşağıdaki komutu çalıştırabilirsiniz:
@@ -14,7 +15,7 @@ Hazırsanız, Solana Cookbook referans alınarak, TypeScript ve Nest.js ile Sola
 ```
 npm i -g @nestjs/cli
 ```
-![alt text](https://imgtr.ee/images/2023/06/02/SVIS4.png)
+![npm i](https://imgtr.ee/images/2023/06/02/SVIS4.png)
 
 Nest.js, TypeScript tabanlı bir framework olduğu için, TypeScript'i de kurmamız gerekiyor. TypeScript'i kurmak için aşağıdaki komutu çalıştırabilirsiniz:
 ```
@@ -25,7 +26,7 @@ Npm desteğini seçmeyi unutmayın çünkü yazının devamında npm paket yöne
 ```
 nest new solana-wallet
 ```
-![alt text](https://imgtr.ee/images/2023/06/02/SVfY0.png)
+![nest new solana-wallet](https://imgtr.ee/images/2023/06/02/SVfY0.png)
 
 Solonayla iletişme geçmek için @solona/web3.js paketini kullanacağız. Bu paketi kurmak için aşağıdaki komutu çalıştırabilirsiniz:
 ```
@@ -63,3 +64,38 @@ npm install
 npm run start:dev
 ```
 Bu noktada artık dosya dizininiz aşağıdaki gibi görünmelidir:
+![dosya dizini görüntüsü](https://imgtr.ee/images/2023/06/02/SWnHi.png)
+Projenizi çalıştırdıktan sonra, http://localhost:3000/api adresine giderek Swagger'ı kullanabilirsiniz. Swagger'ı kullanarak, projenizin API'lerini test edebilirsiniz. Aşağıdaki gibi bir ekran göreceksiniz:
+![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SW1RD.png)
+Artık temel bir proje kurulumumuz var. Şimdi, Solana ile etkileşime geçmek için gerekli olan hesap oluşturma, bakiye sorgulama, işlem gönderme gibi işlevleri gerçekleştirecek olan Wallet Service'i oluşturmaya başlayabiliriz.
+Terminaliniz proje dizinindeyse, sırasıyla aşağıdaki komutları çalıştırarak Wallet Service'i oluşturalım:
+```
+cd src
+mkdir routes
+cd routes
+nest g module wallet
+nest g service wallet
+nest g controller wallet
+```
+Gözünüze batmaması ve aklınızı karıştırmaması için aşağıdaki dosyaları silebilirsiniz:
+```
+src/app.controller.ts
+src/app.service.ts
+src/app.controller.spec.ts
+src/app.module.ts
+src/routes/wallet/wallet.controller.spec.ts
+src/routes/wallet/wallet.service.spec.ts
+```
+Ayrıca main.ts içindeki AppModule olan kısmı WalletModule olarak değiştirebilirsiniz.
+```
+async function bootstrap() {
+  const app = await NestFactory.create(WalletModule);
+  ...
+}
+```
+Bu işlemlerden sonra dosya dizininiz aşağıdaki gibi görünmelidir:
+![dosya dizini görüntüsü](https://imgtr.ee/images/2023/06/02/SWIBA.png)
+
+## Solana/web3.js ve Wallet Service
+
+### KeyPair Yaratmak
