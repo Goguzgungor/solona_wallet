@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WalletController = void 0;
 const common_1 = require("@nestjs/common");
 const wallet_service_1 = require("./wallet.service");
+const wallet_dto_1 = require("./wallet.dto");
 let WalletController = exports.WalletController = class WalletController {
     constructor(walletService) {
         this.walletService = walletService;
@@ -27,6 +28,9 @@ let WalletController = exports.WalletController = class WalletController {
     }
     async requestAirdrop(publicKey, solBalance) {
         return await this.walletService.requestAirdrop(publicKey, solBalance);
+    }
+    async transaction(item) {
+        return await this.walletService.transaction(item);
     }
 };
 __decorate([
@@ -50,6 +54,13 @@ __decorate([
     __metadata("design:paramtypes", [String, Number]),
     __metadata("design:returntype", Promise)
 ], WalletController.prototype, "requestAirdrop", null);
+__decorate([
+    (0, common_1.Post)('transaction'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [wallet_dto_1.TransactionDto]),
+    __metadata("design:returntype", Promise)
+], WalletController.prototype, "transaction", null);
 exports.WalletController = WalletController = __decorate([
     (0, common_1.Controller)('wallet'),
     __metadata("design:paramtypes", [wallet_service_1.WalletService])

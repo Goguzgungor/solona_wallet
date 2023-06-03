@@ -30,6 +30,21 @@ let WalletService = exports.WalletService = class WalletService {
         await connection.confirmTransaction(signature);
         return { signature: signature };
     }
+    async transaction(item) {
+        {
+            const connection = new web3_js_1.Connection('https://api.devnet.solana.com', 'confirmed');
+            const keyPair = web3_js_1.Keypair.fromSecretKey(new Uint8Array(JSON.parse(item.privateKey)));
+            const transferTransaction = new web3_js_1.Transaction().add(web3_js_1.SystemProgram.transfer({
+                fromPubkey: keyPair.publicKey,
+                toPubkey: new web3_js_1.PublicKey(item.reciver_public_key),
+                lamports: item.balance,
+            }));
+            const signature = await (0, web3_js_1.sendAndConfirmTransaction)(connection, transferTransaction, [
+                keyPair
+            ]);
+            return signature;
+        }
+    }
 };
 exports.WalletService = WalletService = __decorate([
     (0, common_1.Injectable)()

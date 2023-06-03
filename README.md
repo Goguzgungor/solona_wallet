@@ -185,3 +185,68 @@ https://solscan.io/account/<public_key>
 ```
 Apiden ise aşağıdaki gibi bir sonuç alacaksınız:
 ![swagger ekran görüntüsü](https://i.ibb.co/51b164k/Screenshot-2023-06-03-at-15-37-38.png)
+## Transaction
+Transaction fonksiyonunu yazmadan önce bir model yazacağız. Bunun için öncellikle şu komutu çalıştırın:
+```
+ cd wallet
+ touch wallet.dto.ts
+ cd ..
+```
+Şimdi wallet.dto.ts dosyasına gidip aşağıdaki kodları yazalım:
+```
+import { ApiProperty } from "@nestjs/swagger";
+
+export class TransactionDto{
+    @ApiProperty({ type: String, required: true, example:"[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]"})
+    privateKey: string;
+
+    //dikkat bu benim hesabımın public keyi
+    @ApiProperty({ type: String, required: true, example:'99Grs8xvqrox8Zgcp2AgBVvWTBdBQp37YNgfzwLmsQ1P'})
+    reciver_public_key: string;
+
+
+    @ApiProperty({ type: Number, required: true, example:10000000})
+    balance:number;
+}
+```
+Şimdi gidip wallet.service.ts dosyasına gidip trantaction fonksiyonunu yazalım:
+```
+   async transaction(item: TransactionDto) {
+        {
+
+            const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+
+            const keyPair: Keypair = Keypair.fromSecretKey(new Uint8Array(JSON.parse(item.privateKey)));
+            const transferTransaction = new Transaction().add(
+                SystemProgram.transfer({
+                    fromPubkey: keyPair.publicKey,
+                    toPubkey: new PublicKey(item.reciver_public_key),
+                    lamports: item.balance,
+                })
+            );
+            const signature: string = await sendAndConfirmTransaction(connection, transferTransaction, [
+                keyPair
+            ])
+            return signature;
+        }
+    }
+```
+Hadi şimdi gidip apimizi hazırlayayım, bu sefer diğerlerinden farklı olarak post methodunu kullanacağız. Wallet.controller.ts dosyasına gidip aşağıdaki kodları yazalım:
+```
+   @Post('transaction')
+    async transaction(@Body() item:TransactionDto) {
+        return await this.walletService.transaction(item);
+    }
+```
+Bu işlemlerden sonra http://localhost:3000/api adresine gidip yeni apimizi test edelim. Daha önce airDrop istediğimiz hesabın SecretKeyini ve yeni yaratacağımız hesabın public keyini alalım. Sonra da aşağıdaki gibi bir body ile post işlemi yapalım:
+![swagger ekran görüntüsü](https://i.ibb.co/BT3gDZ8/Screenshot-2023-06-03-at-16-18-59.png)
+Bundan sonra dönen veriyi https://solscan.io/?cluster=devnet adresinde teyit edebilirsiniz. Aşağıdaki gibi görünecektir:
+![solscan ekran görüntüsü](https://i.ibb.co/37xsjnm/Screenshot-2023-06-03-at-16-06-31.png)
+İstersek daha önce yazdığımız showBalance apisi ile de bakiye sorgulaması yapabiliriz. Aşağıdaki gibi görünecektir:
+![swagger ekran görüntüsü](https://i.ibb.co/jrDt486/Screenshot-2023-06-03-at-16-26-12.png)
+## Sonuç
+Bu yazıda NestJS ile Solana Blockchain'ini kullanarak bir wallet uygulaması geliştirdik. Solona kodlarının büyük çoğunluğu Solona Cookbook'dan alınmıştır. Bu güzel kaynak için Solona Foundation'a teşekkür ederim. Umarım bu yazı sizin Solana Blockchain'ininde program geliştirmenize önayak olabilmiştir. Aklınızda kalan sorular için bana linknedin ve telegram adreslerimden ulaşabilirsiniz, bu projeye issue olarak da açabilirsiniz. Bir sonraki yazıda görüşmek üzere. Hoşçakalın. 
+## Kaynaklar
+- https://docs.solana.com/
+- https://docs.nestjs.com/
+- https://solanacookbook.com/references/

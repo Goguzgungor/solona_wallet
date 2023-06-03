@@ -1,3 +1,4 @@
+import { TransactionDto } from './wallet.dto';
 export declare class WalletService {
     generateKeyPair(): Promise<{
         publicKey: string;
@@ -9,4 +10,5 @@ export declare class WalletService {
     requestAirdrop(publicKey: string, solBalance: number): Promise<{
         signature: string;
     }>;
+    transaction(item: TransactionDto): Promise<string>;
 }
