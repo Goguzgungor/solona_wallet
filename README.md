@@ -1,4 +1,4 @@
-##TypeScript Kullanarak Solana için Wallet Backend'i Oluşturmak!
+## TypeScript Kullanarak Solana için Wallet Backend'i Oluşturmak!
 
 Blockchain teknolojisi, finansal işlemlerin güvenli ve şeffaf bir şekilde gerçekleştirilmesine olanak tanıyan önemli bir dönüşüm sağlıyor. Solana, yüksek performanslı ve ölçeklenebilir bir blockchain platformu olarak, inovasyonu destekleyen bir ekosistem sunuyor. Bu yazıda, Solana'nın güçlü altyapısından yararlanarak, TypeScript ve Nest.js kullanarak bir Wallet Backend'i oluşturmanın adımlarını keşfedeceğiz.
 
