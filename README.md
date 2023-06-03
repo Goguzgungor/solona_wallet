@@ -183,4 +183,5 @@ Bu işlemlerden sonra http://localhost:3000/api adresine gidip yeni apimizi test
 ```
 https://solscan.io/account/<public_key>
 ```
-
+Apiden ise aşağıdaki gibi bir sonuç alacaksınız:
+![swagger ekran görüntüsü](https://i.ibb.co/51b164k/Screenshot-2023-06-03-at-15-37-38.png)
