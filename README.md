@@ -132,9 +132,9 @@ export class WalletController {
 }
 ```
 Bu işlemlerden sonra http://localhost:3000/api adresine giderek Swagger üzerinden yeni apimizi test edebiliriz. Aşağıdaki gibi bir ekran göreceksiniz:
-![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SASc7.png)
+![swagger ekran görüntüsü](https://i.ibb.co/8jzwJwj/Screenshot-2023-06-02-at-16-57-31.png)
 Şimdi gidip epoint'i test edelim. Test etmek için "Try it out" butonuna tıklayıp "Execute" butonuna tıklayabilirsiniz. Aşağıdaki gibi bir ekran göreceksiniz:
-![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SAZ5i.png)
+![swagger ekran görüntüsü](https://i.ibb.co/C0S9Ghh/Screenshot-2023-06-02-at-17-01-08.png)
 İsterseniz gidip SolScan ile oluşturduğunuz walletı teyit edebilirsiniz. Bunun için aşağıdaki linki kullanabilirsiniz:
 ```
 https://solscan.io/account/<public_key>
