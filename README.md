@@ -1,4 +1,4 @@
-TypeScript Kullanarak Solana için Wallet Backend'i Oluşturmak!
+##TypeScript Kullanarak Solana için Wallet Backend'i Oluşturmak!
 
 Blockchain teknolojisi, finansal işlemlerin güvenli ve şeffaf bir şekilde gerçekleştirilmesine olanak tanıyan önemli bir dönüşüm sağlıyor. Solana, yüksek performanslı ve ölçeklenebilir bir blockchain platformu olarak, inovasyonu destekleyen bir ekosistem sunuyor. Bu yazıda, Solana'nın güçlü altyapısından yararlanarak, TypeScript ve Nest.js kullanarak bir Wallet Backend'i oluşturmanın adımlarını keşfedeceğiz.
 
@@ -97,5 +97,90 @@ Bu işlemlerden sonra dosya dizininiz aşağıdaki gibi görünmelidir:
 ![dosya dizini görüntüsü](https://imgtr.ee/images/2023/06/02/SWIBA.png)
 
 ## Solana/web3.js ve Wallet Service
+Bu kısımda artık Solana ile etkileşime geçmek için gerekli olan hesap oluşturma, bakiye sorgulama, işlem gönderme gibi işlevleri gerçekleştirecek olan Wallet Service'i oluşturmaya başlayacağız.
 
-### KeyPair Yaratmak
+### KeyPair Oluşturma
+wallet.service.ts dosyasını gidelim ve keypair oluşturup bunu döndüren bir fonksiyon yazalım. Bu fonksiyonu yazarken, Solana'nın sağladığı @solana/web3.js paketini kullanacağız. Bu paketin sağladığı KeyPair sınıfını kullanarak keypair oluşturacağız. KeyPair sınıfı, Solana'da bir hesabı temsil eder. Bu hesabın public ve private keylerini içerir. Bu keypair'i oluşturmak için aşağıdaki fonksiyonu yazabilirsiniz:
+```
+import { Injectable } from '@nestjs/common';
+import { Keypair } from '@solana/web3.js';
+
+@Injectable()
+export class WalletService {
+    async generateKeyPair() {
+        const main_account: Keypair = await Keypair.generate();
+        const public_key: string = main_account.publicKey.toBase58();
+        const secret_key = main_account.secretKey.toString();
+        return { publicKey: public_key, secretKey: secret_key };
+    }
+}
+```
+Şimdi bunu gidip wallet.controller.ts dosyasında kullanalım. Bunun için öncelikle wallet.service.ts dosyasını import edelim. Sonra da WalletController sınıfının constructor'ına WalletService'i inject edelim. Son olarak da generateKeyPair fonksiyonunu çağıralım. Bunun için aşağıdaki gibi bir kod yazabilirsiniz:
+```
+import { Controller, Get } from '@nestjs/common';
+import { WalletService } from './wallet.service';
+
+@Controller('wallet')
+export class WalletController {
+    constructor(private walletService : WalletService) {
+        
+    }
+    @Get()
+    async generateKeyPair() {
+        return await this.walletService.generateKeyPair();
+    }
+}
+```
+Bu işlemlerden sonra http://localhost:3000/api adresine giderek Swagger üzerinden yeni apimizi test edebiliriz. Aşağıdaki gibi bir ekran göreceksiniz:
+![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SASc7.png)
+Şimdi gidip epoint'i test edelim. Test etmek için "Try it out" butonuna tıklayıp "Execute" butonuna tıklayabilirsiniz. Aşağıdaki gibi bir ekran göreceksiniz:
+![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SAZ5i.png)
+İsterseniz gidip SolScan ile oluşturduğunuz walletı teyit edebilirsiniz. Bunun için aşağıdaki linki kullanabilirsiniz:
+```
+https://solscan.io/account/<public_key>
+```
+### Bakiye Sorgulama
+Şimdi de wallet.service.ts dosyasına gidip bakiye sorgulama fonksiyonunu yazalım. Bunun için öncelikle @solana/web3.js paketini import edelim. Sonra da aşağıdaki fonksiyonu yazabilirsiniz:
+```
+async showBalance(publicKey:string){
+        const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+        let wallet = new PublicKey(publicKey);
+        let balance = await connection.getBalance(wallet);
+    console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+    return {balance:`${balance} LAMPORTS`};
+    }
+```
+Şimdi gidip wallet.controller.ts dosyasında kullanalım. Bunun için öncelikle wallet.service.ts dosyasını import edelim. Sonra da WalletController sınıfının constructor'ına WalletService'i inject edelim. Son olarak da showBalance fonksiyonunu çağıralım. Bunun için aşağıdaki gibi bir kod yazabilirsiniz:
+```
+ @Get('balance/:publicKey')
+    async getBalance(@Query('publicKey') publicKey:string) {
+        return await this.walletService.showBalance(publicKey);
+    }
+```
+Bu işlemlerden sonra http://localhost:3000/api adresine gidip yeni apimizi test edelim. Önce daha önce yazdığım apiden publicKey yaratalım sonra yeni yazdığım showBalance apisinden bakiye sorgulaması yapalım.
+![swagger ekran görüntüsü](https://imgtr.ee/images/2023/06/02/SAx9q.png)
+## AirDrop isteme
+Transaction fonksiyonunu yazmadan önce AirDrop isteme işlemini yapmamız gerekiyor. Bunun için aşağıdaki fonksiyonu yazabilirsiniz:
+```
+  async requestAirdrop(publicKey:string,solBalance:number){
+        const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+        let wallet : PublicKey = new PublicKey(publicKey);
+        let signature = await connection.requestAirdrop(wallet, LAMPORTS_PER_SOL);
+        await connection.confirmTransaction(signature);
+        return {signature:signature};
+    }
+```
+Şimdi gidip wallet.controller.ts dosyasında kullanalım. Bunun için öncelikle wallet.service.ts dosyasını import edelim. Sonra da WalletController sınıfının constructor'ına WalletService'i inject edelim. Son olarak da requestAirdrop fonksiyonunu çağıralım. Bunun için aşağıdaki gibi bir kod yazabilirsiniz:
+```
+   @Get('airdrop/:publicKey/:solBalance')
+    async requestAirdrop(@Query('publicKey') publicKey:string,@Query('solBalance') solBalance:number) {
+        return await this.walletService.requestAirdrop(publicKey,solBalance);
+    }
+```
+Bu işlemlerden sonra http://localhost:3000/api adresine gidip yeni apimizi test edelim. Daha önce yazdığımız apiden publicKey yaratalım sonra yeni yazdığımız requestAirdrop apisinden airdrop isteğini gönderelim.
+![swagger ekran görüntüsü](https://i.ibb.co/9GtmYY1/Screenshot-2023-06-03-at-15-28-44.png)
+Şimdi gidip SolScan ile teyite edebilir ya da daha önce yazdığımız showBalance apisini kullanabilirsiniz. SolScan için aşağıdaki linki kullanabilirsiniz:
+```
+https://solscan.io/account/<public_key>
+```
+
